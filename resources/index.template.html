@@ -1,0 +1,89 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+    <title>PhotoFlash</title>
+    <meta name="google" value="notranslate"/>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <script type="text/javascript" src="swfobject.js"></script>
+    <script type="text/javascript">
+
+        function getFlashMovieObject(movieName) {
+            if (window.document[movieName]) {
+                return window.document[movieName];
+            }
+            if (navigator.appName.indexOf("Microsoft Internet") == -1) {
+                if (document.embeds && document.embeds[movieName])
+                    return document.embeds[movieName];
+            }
+            else {
+                return document.getElementById(movieName);
+            }
+        }
+
+        function fnCallback(fn, type, txt) {
+            console.log(fn + ": " + type + ", " + txt);
+        }
+
+        // For version detection, set to min. required Flash Player version, or 0 (or 0.0.0), for no version detection.
+        var swfVersionStr = "${version_major}.${version_minor}.${version_revision}";
+        // To use express install, set to expressInstall.swf, otherwise an empty string.
+        var xiSwfUrlStr = "expressInstall.swf";
+
+        var flashvars = {
+            sandboxGuide: "pic.jpg",
+            uploadPreloader: "preLoader.swf",
+            countDown: "preLoader.swf",
+            shotDelay: 3000,
+            callback: "fnCallback",
+            uploadUrl: "upload.php",
+            autoActivate: "true",
+            camWidth: 640,
+            camHeight: 480,
+            camFPS: 30,
+            camBandwidth: 16384,
+            camQuality: 100,
+            real: false,
+            debug: false
+        };
+
+        var params = {
+            quality: "high",
+            menu: "true",
+            allowScriptAccess: "always"
+        };
+
+        var attributes = {
+            id: "${application}",
+            name: "${application}"
+        };
+
+        swfobject.embedSWF("${swf}.swf", "flashContent",
+                "640", "480",
+                swfVersionStr, xiSwfUrlStr,
+                flashvars, params, attributes);
+    </script>
+</head>
+<body>
+<div id="flashContent">
+    <h1>Alternative content</h1>
+    <p><a href="http://www.adobe.com/go/getflashplayer">
+        <img src="http://www.adobe.com/images/shared/download_buttons/get_flash_player.gif"
+             alt="Get Adobe Flash player"/>
+    </a>
+    </p>
+</div>
+<div>
+    <ul>
+        <li><a href="#" onclick="getFlashMovieObject('${application}').showSandBox()">showSandBox();</a></li>
+        <li><a href="#" onclick="getFlashMovieObject('${application}').checkCamera()">checkCamera();</a></li>
+        <li><a href="#" onclick="getFlashMovieObject('${application}').takePhoto()">takePhoto();</a></li>
+        <li><a href="#" onclick="getFlashMovieObject('${application}').takeNow()">takeNow();</a></li>
+        <li><a href="#" onclick="getFlashMovieObject('${application}').sendPhoto()">sendPhoto();</a></li>
+        <li><a href="#" onclick="getFlashMovieObject('${application}').resetPhoto()">resetPhoto();</a></li>
+        <li><a href="#" onclick="getFlashMovieObject('${application}').activateCamera()">activateCamera();</a></li>
+        <li><a href="#" onclick="getFlashMovieObject('${application}').deactivateCamera()">deactivateCamera();</a></li>
+    </ul>
+</div>
+</body>
+</html>
+

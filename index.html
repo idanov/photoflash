@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset='utf-8'>
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <meta name="description" content="PhotoFlash : PhotoFlash is a simple to use Flash webcam application, completely configurable and controllable from JavaScript">
+
+    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
+
+    <title>PhotoFlash</title>
+  </head>
+
+  <body>
+
+    <!-- HEADER -->
+    <div id="header_wrap" class="outer">
+        <header class="inner">
+          <a id="forkme_banner" href="https://github.com/idanov/photoflash">View on GitHub</a>
+
+          <h1 id="project_title">PhotoFlash</h1>
+          <h2 id="project_tagline">PhotoFlash is a simple to use Flash webcam application, completely configurable and controllable from JavaScript</h2>
+
+            <section id="downloads">
+              <a class="zip_download_link" href="https://github.com/idanov/photoflash/zipball/master">Download this project as a .zip file</a>
+              <a class="tar_download_link" href="https://github.com/idanov/photoflash/tarball/master">Download this project as a tar.gz file</a>
+            </section>
+        </header>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div id="main_content_wrap" class="outer">
+      <section id="main_content" class="inner">
+        <h1>
+<a name="photoflash" class="anchor" href="#photoflash"><span class="octicon octicon-link"></span></a>PhotoFlash</h1>
+
+<h2>
+<a name="introduction" class="anchor" href="#introduction"><span class="octicon octicon-link"></span></a>Introduction</h2>
+
+<p>PhotoFlash is a simple to use Flash webcam application, completely configurable and controllable from JavaScript.
+It supports very basic functionality such as checking for existing camera, taking a photo with or without a delay and
+sending it to a server-side script over an HTTP POST request as a base64-encoded JPEG image.</p>
+
+<h2>
+<a name="usage" class="anchor" href="#usage"><span class="octicon octicon-link"></span></a>Usage</h2>
+
+<p>A complete example for the usage of PhotoFlash can be found in the flash build result <a href="../tree/master/dest">here</a>.</p>
+
+<p>First, include <code>SWFObject</code></p>
+
+<div class="highlight highlight-html"><pre><span class="nt">&lt;head&gt;</span>
+    <span class="c">&lt;!-- ... --&gt;</span>
+    <span class="nt">&lt;script </span><span class="na">type=</span><span class="s">"text/javascript"</span> <span class="na">src=</span><span class="s">"swfobject.js"</span><span class="nt">&gt;&lt;/script&gt;</span>
+    <span class="c">&lt;!-- or --&gt;</span>
+    <span class="nt">&lt;script </span><span class="na">type=</span><span class="s">"text/javascript"</span>
+        <span class="na">src=</span><span class="s">"http://ajax.googleapis.com/ajax/libs/swfobject/2.2/swfobject.js"</span><span class="nt">&gt;&lt;/script&gt;</span>
+    <span class="c">&lt;!-- ... --&gt;</span>
+<span class="nt">&lt;head&gt;</span>
+</pre></div>
+
+<p>Then find a suitable place in your HTML for the video preview and put a div there</p>
+
+<div class="highlight highlight-html"><pre><span class="nt">&lt;div</span> <span class="na">id=</span><span class="s">"divToBeReplaced"</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;h1&gt;</span>No flash player installed<span class="nt">&lt;/h1&gt;</span>
+    <span class="nt">&lt;p&gt;&lt;a</span> <span class="na">href=</span><span class="s">"http://www.adobe.com/go/getflashplayer"</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;img</span> <span class="na">src=</span><span class="s">"http://www.adobe.com/images/shared/download_buttons/get_flash_player.gif"</span>
+                <span class="na">alt=</span><span class="s">"Get Adobe Flash player"</span><span class="nt">/&gt;</span>
+    <span class="nt">&lt;/a&gt;</span>
+    <span class="nt">&lt;/p&gt;</span>
+<span class="nt">&lt;/div&gt;</span>
+</pre></div>
+
+<p>Define a helper function to access the flash object from JavaScript</p>
+
+<div class="highlight highlight-javascript"><pre><span class="kd">function</span> <span class="nx">getFlashMovieObject</span><span class="p">(</span><span class="nx">movieName</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="nb">window</span><span class="p">.</span><span class="nb">document</span><span class="p">[</span><span class="nx">movieName</span><span class="p">])</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="nb">window</span><span class="p">.</span><span class="nb">document</span><span class="p">[</span><span class="nx">movieName</span><span class="p">];</span>
+    <span class="p">}</span>
+    <span class="k">if</span> <span class="p">(</span><span class="nx">navigator</span><span class="p">.</span><span class="nx">appName</span><span class="p">.</span><span class="nx">indexOf</span><span class="p">(</span><span class="s2">"Microsoft Internet"</span><span class="p">)</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">if</span> <span class="p">(</span><span class="nb">document</span><span class="p">.</span><span class="nx">embeds</span> <span class="o">&amp;&amp;</span> <span class="nb">document</span><span class="p">.</span><span class="nx">embeds</span><span class="p">[</span><span class="nx">movieName</span><span class="p">])</span>
+            <span class="k">return</span> <span class="nb">document</span><span class="p">.</span><span class="nx">embeds</span><span class="p">[</span><span class="nx">movieName</span><span class="p">];</span>
+    <span class="p">}</span>
+    <span class="k">else</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="nb">document</span><span class="p">.</span><span class="nx">getElementById</span><span class="p">(</span><span class="nx">movieName</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+
+<p>and a callback function</p>
+
+<div class="highlight highlight-javascript"><pre><span class="kd">function</span> <span class="nx">fnCallback</span><span class="p">(</span><span class="nx">fn</span><span class="p">,</span> <span class="nx">type</span><span class="p">,</span> <span class="nx">txt</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">fn</span> <span class="o">+</span> <span class="s2">": "</span> <span class="o">+</span> <span class="nx">type</span> <span class="o">+</span> <span class="s2">", "</span> <span class="o">+</span> <span class="nx">txt</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+
+<p>Set flashvars, flash object params and attributes</p>
+
+<div class="highlight highlight-javascript"><pre><span class="c1">// Flashvars are explained later</span>
+<span class="kd">var</span> <span class="nx">flashvars</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="nx">sandboxGuide</span><span class="o">:</span> <span class="s2">"pic.jpg"</span><span class="p">,</span>
+    <span class="nx">uploadPreloader</span><span class="o">:</span> <span class="s2">"preLoader.swf"</span><span class="p">,</span>
+    <span class="nx">countDown</span><span class="o">:</span> <span class="s2">"preLoader.swf"</span><span class="p">,</span>
+    <span class="nx">shotDelay</span><span class="o">:</span> <span class="mi">3000</span><span class="p">,</span>
+    <span class="nx">callback</span><span class="o">:</span> <span class="s2">"fnCallback"</span><span class="p">,</span>
+    <span class="nx">uploadUrl</span><span class="o">:</span> <span class="s2">"upload.php"</span><span class="p">,</span>
+    <span class="nx">autoActivate</span><span class="o">:</span> <span class="s2">"true"</span><span class="p">,</span>
+    <span class="nx">camWidth</span><span class="o">:</span> <span class="mi">640</span><span class="p">,</span>
+    <span class="nx">camHeight</span><span class="o">:</span> <span class="mi">480</span><span class="p">,</span>
+    <span class="nx">camFPS</span><span class="o">:</span> <span class="mi">30</span><span class="p">,</span>
+    <span class="nx">camQuality</span><span class="o">:</span> <span class="mi">100</span>
+<span class="p">};</span>
+
+<span class="kd">var</span> <span class="nx">params</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="nx">quality</span><span class="o">:</span> <span class="s2">"high"</span><span class="p">,</span> <span class="c1">// set the flash movie quality to high</span>
+    <span class="nx">menu</span><span class="o">:</span> <span class="s2">"true"</span><span class="p">,</span> <span class="c1">// that will enable the right-click menu on the flash object</span>
+    <span class="nx">allowScriptAccess</span><span class="o">:</span> <span class="s2">"always"</span> <span class="c1">// this enables JavaScript-to-Flash communication</span>
+<span class="p">};</span>
+
+<span class="kd">var</span> <span class="nx">attributes</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="nx">id</span><span class="o">:</span> <span class="s2">"movieName"</span><span class="p">,</span>
+    <span class="nx">name</span><span class="o">:</span> <span class="s2">"movieName"</span>
+<span class="p">};</span>
+</pre></div>
+
+<p>Finally, embed the flash object by using <code>SWFObject</code></p>
+
+<div class="highlight highlight-javascript"><pre><span class="nx">swfobject</span><span class="p">.</span><span class="nx">embedSWF</span><span class="p">(</span><span class="s2">"photoflash.swf"</span><span class="p">,</span> <span class="c1">// specify the path to the PhotoFlash .swf file</span>
+                <span class="s2">"divToBeReplaced"</span><span class="p">,</span> <span class="c1">// specify the id of the HTML element to be replaced</span>
+                <span class="s2">"640"</span><span class="p">,</span> <span class="s2">"480"</span><span class="p">,</span> <span class="c1">// set the size of the preview canvas, in pixels</span>
+                <span class="s2">"11.1.0"</span><span class="p">,</span> <span class="c1">// set the target flash player version and</span>
+                <span class="s2">"expressInstall.swf"</span><span class="p">,</span> <span class="c1">// set the path to the flash installer .swf file</span>
+                <span class="nx">flashvars</span><span class="p">,</span> <span class="nx">params</span><span class="p">,</span> <span class="nx">attributes</span><span class="p">);</span>
+
+</pre></div>
+
+<p>After following these steps, PhotoFlash is ready to be used</p>
+
+<div class="highlight highlight-javascript"><pre><span class="nx">getFlashMovieObject</span><span class="p">(</span><span class="s1">'movieName'</span><span class="p">).</span><span class="nx">takeNow</span><span class="p">();</span>
+</pre></div>
+
+<h2>
+<a name="api-reference" class="anchor" href="#api-reference"><span class="octicon octicon-link"></span></a>API Reference</h2>
+
+<p>The app is controlled by setting flashvars and calling the exposed JavaScript methods. Here you can find explanation of 
+all available parameters and methods. </p>
+
+<h4>
+<a name="flashvars" class="anchor" href="#flashvars"><span class="octicon octicon-link"></span></a>Flashvars</h4>
+
+<p>Setting the flashvars controls the initial setup of the application</p>
+
+<ul>
+<li>
+<code>sandboxGuide</code> - specifies a path to an image file (<code>.jpg</code>, <code>.png</code>) to be shown as a helping guide below the flash 
+security sandbox when open <em>(default: empty)</em> </li>
+<li>
+<code>uploadPreloader</code> - specifies a path to a <code>.swf</code> animation shown in the center of the preview canvas as a preloader,
+when uploading the taken photo <em>(default: empty)</em>
+</li>
+<li>
+<code>countDown</code> - specifies a path to a <code>.swf</code> animation used as a canvas centered countdown when waiting for the photo to be taken <em>(default: empty)</em>
+</li>
+<li>
+<code>shotDelay</code> - sets the delay in <em>ms</em> for taking a photo, when <code>takePhoto()</code> is called; this might need to be equal to
+the countdown animation duration <em>(default: 3000)</em>
+</li>
+<li>
+<code>callback</code> - a string specifying the name of a JavaScript function to be called in case of a series of events <em>(default: empty)</em>;
+the javascript function should have the form <code>callbackFn(event, typeName, data)</code>, where <code>event</code> could be one of the following:
+
+<ul>
+<li>
+<code>after_reset</code> - fired after preview is reset</li>
+<li>
+<code>after_take</code> - fired after photo is taken</li>
+<li>
+<code>http_status</code> - fired on receiving the HTTP status code; <code>data</code> contains the HTTP status</li>
+<li>
+<code>error</code> - fired on upload error and additional information for the error is available in <code>typeName</code> and <code>data</code>
+</li>
+<li>
+<code>upload</code> - fired on successful upload; <code>typeName</code> contains the flash event type and <code>data</code> is the text feedback from the POST request</li>
+</ul>
+</li>
+<li>
+<code>uploadUrl</code> - url where the POST request should be sent; image data is sent as a POST variable <code>imageData</code>,
+which is a base64-encoded jpeg byte stream <em>(default: "upload.php")</em>
+</li>
+<li>
+<code>autoActivate</code> - active the camera on load, if set to <code>true</code> <em>(default: false)</em>
+</li>
+<li>
+<code>camWidth</code> - horizontal camera resolution; this will be the width of the uploaded photo, if supported by camera <em>(default: 640)</em>
+</li>
+<li>
+<code>camHeight</code> - vertical camera resolution; this will be the width of the uploaded photo, if supported by camera <em>(default: 480)</em>
+</li>
+<li>
+<code>camFPS</code> - sets the framerate for the video preview <em>(default: 30)</em>
+</li>
+<li>
+<code>camBandwidth</code> - sets the max bandwidth of the video preview in <em>bytes/s</em>, 0 is unlimited; not very relevant for photos <em>(default: 0)</em>
+</li>
+<li>
+<code>camQuality</code> - sets the quality of the camera from <code>0</code> to <code>100</code> <em>(default: 100)</em>
+</li>
+<li>
+<code>real</code> - controls whether the preview is with real or mirrored video stream from the camera <em>(default: false)</em>
+</li>
+<li>
+<code>debug</code> - when set to <code>true</code>, some debug info is traced in the JavaScript console <em>(default: false)</em>
+</li>
+</ul>
+
+<h4>
+<a name="javascript-interface" class="anchor" href="#javascript-interface"><span class="octicon octicon-link"></span></a>JavaScript interface</h4>
+
+<p>All JavaScript calls are accessible by calling them as methods of the object <code>getFlashMovieObject('movieName')</code></p>
+
+<ul>
+<li>
+<code>.showSandBox()</code> - shows the flash security sandbox</li>
+<li>
+<code>.checkCamera()</code> - checks whether the user has at least one connected camera</li>
+<li>
+<code>.activateCamera()</code> - activate the camera; might result into showing the flash security sandbox</li>
+<li>
+<code>.deactivateCamera()</code> - deactivate the camera</li>
+<li>
+<code>.changeCameraMode(width, height, fps)</code> - change the camera mode to <strong>width</strong> by <strong>height</strong> resolution and <strong>fps</strong> framerate</li>
+<li>
+<code>.changeCameraQuality(bandwidth, quality)</code> - change the bandwidth of the video stream and its quality</li>
+<li>
+<code>.takePhoto()</code> - take photo with a countdown (delay)</li>
+<li>
+<code>.takeNow()</code> - take photo immediately</li>
+<li>
+<code>.sendPhoto()</code> - send the photo to the <code>uploadUrl</code>, set as flashvar</li>
+<li>
+<code>.resetPhoto()</code> - reset the preview video canvas, after taken photo</li>
+<li>
+<code>.useMirrorImage(mirror)</code> - set whether a mirrored preview should be used or not</li>
+</ul>
+
+<h2>
+<a name="motivation" class="anchor" href="#motivation"><span class="octicon octicon-link"></span></a>Motivation</h2>
+
+<p>The project is a rework of one of my old freelance projects from 2009, created for the needs of a client. Though very useful
+as a black-box component, it was poorly written back then. Recently I needed it for another project, so I've decided to change
+it a bit and open-source it. I hope that it should be easier now to modify and/or extend it, so more people can find it useful.
+This is my first open-source project and I hope that someone finds it useful.</p>
+
+<h2>
+<a name="contributors" class="anchor" href="#contributors"><span class="octicon octicon-link"></span></a>Contributors</h2>
+
+<p>You are more than welcome to contribute to the project by requesting a feature or reporting a bug
+<a href="../issues">here</a>, <a href="../fork">forking</a> the project
+and/or opening a <a href="../compare">pull request</a> with suggested changes.</p>
+
+<h4>
+<a name="compilation-instructions" class="anchor" href="#compilation-instructions"><span class="octicon octicon-link"></span></a>Compilation instructions</h4>
+
+<p>TODO</p>
+
+<h2>
+<a name="license" class="anchor" href="#license"><span class="octicon octicon-link"></span></a>License</h2>
+
+<p>The classes <code>BitString</code> and <code>JPEGEncoder</code> are under <em>Adobe</em>'s license, which is included in their files.
+The class <code>Base64</code> is licensed by <em>Jean-Philippe Auclair</em> under the <a href="http://opensource.org/licenses/MIT">MIT License</a>.
+<code>SWFObject</code> is released under the <a href="http://opensource.org/licenses/MIT">MIT License</a>.
+The rest of the code is licensed by me under the <a href="../blob/master/LICENSE">MIT License</a>.</p>
+      </section>
+    </div>
+
+    <!-- FOOTER  -->
+    <div id="footer_wrap" class="outer">
+      <footer class="inner">
+        <p class="copyright">PhotoFlash maintained by <a href="https://github.com/idanov">idanov</a></p>
+        <p>Published with <a href="http://pages.github.com">GitHub Pages</a></p>
+      </footer>
+    </div>
+
+    
+
+  </body>
+</html>
